@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_app/constants/apis_constants.dart';
 import 'package:flutter_app/extentions/extentions.dart';
 import 'package:flutter_app/models/user.dart';
 import 'package:flutter_app/views/auth/register.dart';
-import 'package:flutter_app/utils/fonts.dart' as Constants;
+import 'package:flutter_app/constants/fonts.dart';
 import 'package:flutter_app/views/worker/home_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -75,7 +76,7 @@ class _loginState extends State<Login> {
                           contentPadding: EdgeInsets.symmetric(vertical: -5),
                           labelText: 'email'.tr(),
                           labelStyle: TextStyle(
-                            fontFamily: Constants.KOFI_REGULAR,
+                            fontFamily: KOFI_REGULAR,
                             color: Theme.of(context).primaryColor,
                           ),
                           enabledBorder: UnderlineInputBorder(
@@ -101,7 +102,7 @@ class _loginState extends State<Login> {
                           labelText: "password".tr(),
                           labelStyle: TextStyle(
                               color: Theme.of(context).primaryColor,
-                              fontFamily: Constants.KOFI_REGULAR),
+                              fontFamily: KOFI_REGULAR),
                         ),
                       ),
                     ),
@@ -112,7 +113,7 @@ class _loginState extends State<Login> {
                       child: ElevatedButton(
                         child: Text(
                           "login".tr(),
-                          style: TextStyle(fontFamily: Constants.KOFI_BOLD),
+                          style: TextStyle(fontFamily: KOFI_BOLD),
                         ),
                         style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all<Color>(
@@ -132,7 +133,7 @@ class _loginState extends State<Login> {
                       child: ElevatedButton(
                         child: Text(
                           "new_account".tr(),
-                          style: TextStyle(fontFamily: Constants.KOFI_BOLD),
+                          style: TextStyle(fontFamily: KOFI_BOLD),
                         ),
                         style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all<Color>(
@@ -161,7 +162,7 @@ class _loginState extends State<Login> {
 
   loginUser(String username, String password) async {
     final response = await http.post(
-      Uri.https('avodeem.herokuapp.com', 'api/users/login'),
+      Uri.https(BASE_URL, LOGIN),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -229,7 +230,7 @@ class _loginState extends State<Login> {
               margin: EdgeInsets.only(left: 7, right: 20),
               child: Text(
                 "please_wait".tr(),
-                style: TextStyle(fontFamily: Constants.KOFI_REGULAR),
+                style: TextStyle(fontFamily: KOFI_REGULAR),
               )),
         ],
       ),

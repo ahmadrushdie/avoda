@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter_app/utils/fonts.dart' as Constants;
+import 'package:flutter_app/constants/fonts.dart' as Constants;
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter_app/views/worker/profile.dart';
+import 'package:flutter_app/views/worker/posted_jobs.dart';
+import 'package:flutter_app/views/worker/user_profile.dart';
 
 class WorkerHomePage extends StatefulWidget {
   WorkerHomePage({Key key, this.title}) : super(key: key);
@@ -36,9 +37,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
     Text(
       'Messages',
     ),
-    Text(
-      'Jobs',
-    ),
+    PostedJobs(),
     ProfilePage(),
   ];
 
@@ -79,6 +78,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
       body: Center(
         child: _widgetOptions.elementAt(selectedIndex),
       ),
+
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(

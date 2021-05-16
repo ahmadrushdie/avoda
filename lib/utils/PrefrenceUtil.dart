@@ -16,13 +16,12 @@ class PrefrenceUtil {
   static Future<Locale> getLanguageLocale() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var lang = prefs.getString('lang').toString();
-    return Locale(lang == "null" ? "ar" : lang, '');
+    return Locale(lang == null ? "ar" : lang, '');
   }
 
   static setLanguage(String lang) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('lang', lang);
-
   }
 
   static void saveUser(User user) async {
