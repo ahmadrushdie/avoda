@@ -32,5 +32,20 @@
     "desc": "الوصف",
     "location": "المكان",
     "specialization": "التخصص",
-    "date": "التاريخ"
+    "date": "التاريخ",
+    "photo_library": "مكتبة الصور",
+    "camera": "الكاميرا",
+    "delete_photo": "حذف الصورة",
+    "delete": "حذف",
+    "settings": "الإعدادات",
+    "delete_msg": "هل انت متاكد من انك تريد حذف الصورة ؟",
+    "ok": "موافق",
+    "cancel": "الغاء",
+    "photo_deleted_success": "تم حذف الصورة بنجاح",
+    "personal_info": "المعلومات الشخصية",
+    "bio": "نبذة عن",
+    "edit": "تعديل",
+    "logout": "تسجيل الخروج",
+    "about": "نبذة عن",
+    "save": "حفظ"
 }

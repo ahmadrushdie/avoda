@@ -21,7 +21,7 @@ void main() async {
   });
   runApp(EasyLocalization(
       path: 'assets/locales',
-      supportedLocales: [Locale('he', ''), Locale('ar', '')],
+      supportedLocales: [Locale('ar', ''), Locale('he', '')],
       startLocale: locale,
       child: MyApp()));
 }

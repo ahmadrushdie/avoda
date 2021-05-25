@@ -15,7 +15,7 @@ class PrefrenceUtil {
 
   static Future<Locale> getLanguageLocale() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var lang = prefs.getString('lang').toString();
+    var lang = prefs.getString('lang');
     return Locale(lang == null ? "ar" : lang, '');
   }
 

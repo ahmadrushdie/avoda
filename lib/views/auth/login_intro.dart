@@ -221,9 +221,10 @@ class _loginState extends State<LoginIntro> {
         isSelected[0] = false;
         isSelected[1] = true;
       }
+      var temp = isSelected;
 
       setState(() {
-        isSelected = isSelected;
+        isSelected = temp;
       });
     });
   }

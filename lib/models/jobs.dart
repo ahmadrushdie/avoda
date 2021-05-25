@@ -32,16 +32,24 @@ class Job {
   String city;
   String description;
   String sId;
-  String field;
+  Field field;
+  Owner owner;
 
-  Job({this.createdAt, this.city, this.description, this.sId, this.field});
+  Job(
+      {this.createdAt,
+      this.city,
+      this.description,
+      this.sId,
+      this.field,
+      this.owner});
 
   Job.fromJson(Map<String, dynamic> json) {
     createdAt = json['createdAt'];
     city = json['city'];
     description = json['description'];
     sId = json['_id'];
-    field = json['field'];
+    field = Field.fromJson(json['filed']);
+    owner = Owner.fromJson(json['owner']);
   }
 
   Map<String, dynamic> toJson() {
@@ -52,5 +60,41 @@ class Job {
     data['_id'] = this.sId;
     data['field'] = this.field;
     return data;
+  }
+}
+
+class Field {
+  String id;
+  String arabicName;
+  String hebrewName;
+
+  String getSpecial(String lang) {
+    if (lang == "ar") {
+      return arabicName;
+    } else {
+      return hebrewName;
+    }
+  }
+
+  Field({this.id, this.arabicName, this.hebrewName});
+
+  Field.fromJson(Map<String, dynamic> json) {
+    id = json['_id'];
+    arabicName = json['ArabicName'];
+    hebrewName = json['HebrewName'];
+  }
+}
+
+class Owner {
+  String id;
+  String userPic;
+  String fullName;
+
+  Owner({this.id, this.userPic, this.fullName});
+
+  Owner.fromJson(Map<String, dynamic> json) {
+    id = json['_id'];
+    userPic = json['userPic'];
+    fullName = json['fullName'];
   }
 }

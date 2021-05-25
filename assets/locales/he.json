@@ -29,5 +29,20 @@
     "desc": "התיאור",
     "location": "מקום",
     "specialization": "התמחות",
-    "date": "היסטוריה"
+    "date": "היסטוריה",
+    "photo_library": "ספריית תמונות",
+    "camera": "מַצלֵמָה",
+    "delete_photo": "למחוק תמונה",
+    "delete": "מחק",
+    "settings": "הגדרות",
+    "delete_msg": "האם אתה בטוח שברצונך למחוק את התמונה?",
+    "ok": "בסדר",
+    "cancel": "ביטול",
+    "photo_deleted_success": "התמונה נמחקה בהצלחה",
+    "personal_info": "מידע אישי",
+    "bio": "על אודות",
+    "edit": "שינוי",
+    "logout": "התנתק",
+    "about": "על אודות",
+    "save": "לשמור"
 }

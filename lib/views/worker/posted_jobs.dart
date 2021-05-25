@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/constants/apis_constants.dart';
 import 'package:flutter_app/constants/fonts.dart';
+import 'package:flutter_app/extentions/extentions.dart';
 import 'package:flutter_app/models/jobs.dart';
 import 'package:flutter_app/utils/PrefrenceUtil.dart';
+import 'package:flutter_app/views/common/rounded_image.dart';
 import 'package:http/http.dart' as http;
 import 'package:easy_localization/easy_localization.dart';
 
@@ -28,7 +30,7 @@ class PostedJobs extends StatefulWidget {
 
 class _PostedJobsState extends State<PostedJobs> {
   List<Job> jobs;
-
+  String lang;
   @override
   void initState() {
     super.initState();
@@ -37,6 +39,8 @@ class _PostedJobsState extends State<PostedJobs> {
 
   @override
   Widget build(BuildContext context) {
+    lang = context.locale.languageCode;
+
     return jobs == null ? showLoader() : showList();
   }
 
@@ -72,106 +76,130 @@ class _PostedJobsState extends State<PostedJobs> {
               child: Card(
                   child: Padding(
                 padding: const EdgeInsets.all(12.0),
-                child: Container(
-                  child: Table(
-                      columnWidths: <int, TableColumnWidth>{
-                        0: IntrinsicColumnWidth(),
-                        1: FlexColumnWidth(),
-                        2: FixedColumnWidth(64),
-                      },
-                      defaultVerticalAlignment:
-                          TableCellVerticalAlignment.middle,
-                      children: <TableRow>[
-                        TableRow(
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: Container(
-                                child: Text(
-                                  "desc".tr(),
-                                  style: headerText,
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        CustomNetworkImage(
+                            width: 50,
+                            hieght: 50,
+                            isCircular: true,
+                            imageUrl:
+                                "https://cdn-a.william-reed.com/var/wrbm_gb_food_pharma/storage/images/publications/cosmetics/cosmeticsdesign-asia.com/article/2019/10/10/why-iso-standards-are-crucial-for-organic-and-natural-transparency-ctfas-president/10238025-1-eng-GB/Why-ISO-standards-are-crucial-for-organic-and-natural-transparency-CTFAS-president_wrbm_large.jpg"),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(job.owner.fullName),
+                        )
+                      ],
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: 10, bottom: 10),
+                      height: 1,
+                      decoration:
+                          BoxDecoration(color: HexColor.fromHex("#cccccc")),
+                    ),
+                    Container(
+                      child: Table(
+                          columnWidths: <int, TableColumnWidth>{
+                            0: IntrinsicColumnWidth(),
+                            1: FlexColumnWidth(),
+                            2: FixedColumnWidth(64),
+                          },
+                          defaultVerticalAlignment:
+                              TableCellVerticalAlignment.middle,
+                          children: <TableRow>[
+                            TableRow(
+                              children: <Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 8.0),
+                                  child: Container(
+                                    child: Text(
+                                      "desc".tr(),
+                                      style: headerText,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                Container(
+                                  child: Text(
+                                    job.description,
+                                    softWrap: false,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: contentStyle,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Container(
-                              child: Text(
-                                job.description,
-                                softWrap: false,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: contentStyle,
-                              ),
-                            ),
-                          ],
-                        ),
 
-                        TableRow(
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: Container(
-                                child: Text(
-                                  "location".tr(),
-                                  style: headerText,
+                            TableRow(
+                              children: <Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 8.0),
+                                  child: Container(
+                                    child: Text(
+                                      "location".tr(),
+                                      style: headerText,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                Container(
+                                  child: Text(
+                                    job.city,
+                                    style: contentStyle,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Container(
-                              child: Text(
-                                job.city,
-                                style: contentStyle,
-                              ),
-                            ),
-                          ],
-                        ),
 
-                        TableRow(
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: Container(
-                                child: Text(
-                                  "specialization".tr(),
-                                  style: headerText,
+                            TableRow(
+                              children: <Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 8.0),
+                                  child: Container(
+                                    child: Text(
+                                      "specialization".tr(),
+                                      style: headerText,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                Container(
+                                  child: Text(
+                                    job.field.getSpecial(lang),
+                                    style: contentStyle,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Container(
-                              child: Text(
-                                job.field,
-                                style: contentStyle,
-                              ),
-                            ),
-                          ],
-                        ),
 
-                        TableRow(
-                          children: <Widget>[
-                            Padding(
-                              padding: const EdgeInsets.only(left: 8.0),
-                              child: Container(
-                                child: Text(
-                                  "date".tr(),
-                                  style: headerText,
+                            TableRow(
+                              children: <Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 8.0),
+                                  child: Container(
+                                    child: Text(
+                                      "date".tr(),
+                                      style: headerText,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                Container(
+                                  child: Text(
+                                    job.createdAt,
+                                    style: contentStyle,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Container(
-                              child: Text(
-                                job.createdAt,
-                                style: contentStyle,
-                              ),
-                            ),
-                          ],
-                        ),
-                        // children: [
-                      ]
-                      //   // Text(""+job.description),
-                      //   // Text(job.city),
-                      //   // Text(job.field),
-                      //   // Text(job.createdAt),
-                      // ],
-                      ),
+                            // children: [
+                          ]
+                          //   // Text(""+job.description),
+                          //   // Text(job.city),
+                          //   // Text(job.field),
+                          //   // Text(job.createdAt),
+                          // ],
+                          ),
+                    ),
+                  ],
                 ),
               )),
             );

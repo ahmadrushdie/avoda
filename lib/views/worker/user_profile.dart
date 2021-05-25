@@ -2,7 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_app/models/profile.dart';
 import 'package:flutter_app/utils/PrefrenceUtil.dart';
+import 'package:flutter_app/views/common/bio_view.dart';
 import 'package:flutter_app/views/common/gallery_viewer.dart';
+import 'package:flutter_app/views/common/rounded_image.dart';
+import 'package:flutter_app/views/common/toast.dart';
+import 'package:flutter_app/views/worker/settings.dart';
 import 'package:flutter_tags/flutter_tags.dart';
 import 'package:http/http.dart' as http;
 
@@ -39,10 +43,15 @@ class _ProfilePageState extends State<ProfilePage> {
   final picker = ImagePicker();
   var bottomTabStyle = TextStyle(fontFamily: KOFI_BOLD, fontSize: 13);
   var pagerTabTextStyle = TextStyle(fontFamily: KOFI_REGULAR, fontSize: 15);
+  var bioHeaderStyle =
+      TextStyle(fontFamily: KOFI_REGULAR, fontSize: 12, color: Colors.grey);
+  var deleteAlbumPhotoStyle =
+      TextStyle(fontFamily: KOFI_REGULAR, fontSize: 14, color: Colors.white);
   Profile profile;
   @override
   void initState() {
     super.initState();
+
     getUserProfile();
     print(User.authToken);
   }
@@ -83,17 +92,34 @@ class _ProfilePageState extends State<ProfilePage> {
                 children: <Widget>[
                   new ListTile(
                       leading: new Icon(Icons.photo_library),
-                      title: new Text('Photo Library'),
+                      title: new Text(
+                        "photo_library".tr(),
+                        style: pagerTabTextStyle,
+                      ),
                       onTap: () {
                         _imgFromGallery();
                         Navigator.of(context).pop();
                       }),
                   new ListTile(
                     leading: new Icon(Icons.photo_camera),
-                    title: new Text('Camera'),
+                    title: new Text(
+                      "camera".tr(),
+                      style: pagerTabTextStyle,
+                    ),
                     onTap: () {
                       _imgFromCamera();
                       Navigator.of(context).pop();
+                    },
+                  ),
+                  new ListTile(
+                    leading: new Icon(Icons.delete),
+                    title: new Text(
+                      "delete_photo".tr(),
+                      style: pagerTabTextStyle,
+                    ),
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      deleteUserProfilePic();
                     },
                   ),
                 ],
@@ -119,6 +145,67 @@ class _ProfilePageState extends State<ProfilePage> {
         });
       }
     }
+  }
+
+  deleteUserProfilePic() async {
+    showLoaderDialog(context);
+    var user = await PrefrenceUtil.getUser();
+    final response = await http.delete(Uri.https(BASE_URL, DELETE_PROFILE_PIC),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          "Authorization": user.token
+        });
+
+    if (response.statusCode == 200) {
+      Navigator.pop(context);
+    }
+  }
+
+  deleteGridPic(int position) async {
+    showLoaderDialog(context);
+    var user = await PrefrenceUtil.getUser();
+    final response = await http.delete(
+        Uri.https(
+            BASE_URL,
+            DELETE_GRID_PIC +
+                profile.data.profilePhotos.photosList[position].sId),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          "Authorization": user.token
+        });
+
+    if (response.statusCode == 200) {
+      var tempProf = profile;
+      tempProf.data.profilePhotos.photosList.removeAt(position);
+      setState(() {
+        profile = tempProf;
+      });
+      Navigator.pop(context);
+      ToastUtil.showToast("photo_deleted_success".tr());
+    }
+  }
+
+  showLoaderDialog(BuildContext context) {
+    AlertDialog alert = AlertDialog(
+      content: new Row(
+        children: [
+          CircularProgressIndicator(),
+          Container(
+              margin: EdgeInsets.only(left: 7, right: 20),
+              child: Text(
+                "please_wait".tr(),
+                style: TextStyle(fontFamily: KOFI_REGULAR),
+              )),
+        ],
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 
   @override
@@ -198,7 +285,8 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   renderProfile(Profile profile) {
-    final List<Tab> myTabs = <Tab>[
+    final List<Widget> myTabs = <Widget>[
+      Tab(text: 'personal_info'.tr()),
       Tab(text: 'recommendations'.tr()),
       Tab(text: 'pics'.tr())
     ];
@@ -223,33 +311,36 @@ class _ProfilePageState extends State<ProfilePage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                        child: Align(
-                            alignment: Alignment.bottomRight,
-                            child: Container(
-                              width: 40,
-                              height: 30,
-                              margin: EdgeInsets.only(left: 0),
-                              child: IconButton(
-                                  icon: const Icon(
-                                    Icons.photo_camera,
-                                    color: Colors.white,
-                                  ),
-                                  onPressed: () {
-                                    _showPicker(context);
-                                  }),
-                            )),
-                        margin: EdgeInsets.only(top: 0),
-                        width: 100.0,
-                        height: 100.0,
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            image: DecorationImage(
-                                fit: BoxFit.cover,
-                                image: _image != null
-                                    ? FileImage(_image)
-                                    : AssetImage(
-                                        'assets/images/login_bg.jpg')))),
+                    Stack(
+                      children: [
+                        CustomNetworkImage(
+                          imageUrl: profile.data.userPic,
+                          width: 100,
+                          isCircular: true,
+                          hieght: 100,
+                        ),
+                        Container(
+                          child: Align(
+                              alignment: Alignment.bottomRight,
+                              child: Container(
+                                width: 40,
+                                height: 30,
+                                margin: EdgeInsets.only(left: 0),
+                                child: IconButton(
+                                    icon: const Icon(
+                                      Icons.photo_camera,
+                                      color: Colors.white,
+                                    ),
+                                    onPressed: () {
+                                      _showPicker(context);
+                                    }),
+                              )),
+                          margin: EdgeInsets.only(top: 0),
+                          width: 100.0,
+                          height: 100.0,
+                        ),
+                      ],
+                    ),
                     Expanded(
                       child: Container(
                         margin: EdgeInsets.only(right: 20),
@@ -258,7 +349,9 @@ class _ProfilePageState extends State<ProfilePage> {
                             Align(
                               alignment: Alignment.centerRight,
                               child: Text(
-                                profile.data.fullName,
+                                profile.data.fullName != null
+                                    ? profile.data.fullName
+                                    : "",
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18,
@@ -267,16 +360,18 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                               ),
                             ),
-                            Align(
-                                alignment: Alignment.centerRight,
-                                child: Text(
-                                  "عامل بناء",
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    fontFamily: KOFI_REGULAR,
-                                    color: Colors.white,
-                                  ),
-                                )),
+                            if (profile.data.workFields != null &&
+                                profile.data.workFields.length > 0)
+                              Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    "عامل بناء",
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontFamily: KOFI_REGULAR,
+                                      color: Colors.white,
+                                    ),
+                                  )),
                             Align(
                                 alignment: Alignment.centerRight,
                                 child: Container(
@@ -284,7 +379,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   margin: EdgeInsets.only(
                                       right: 0, top: 0, bottom: 30),
                                   child: ElevatedButton(
-                                    child: Text("send_message".tr(),
+                                    child: Text("logout".tr(),
                                         style: TextStyle(
                                             fontFamily: KOFI_REGULAR,
                                             fontWeight: FontWeight.normal)),
@@ -305,27 +400,41 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                     ),
+                    Container(
+                        margin: EdgeInsets.only(top: 3),
+                        child: IconButton(
+                            icon: Icon(Icons.settings, color: Colors.white),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => SettingPage()),
+                              );
+                            }))
                   ]),
-              profile.data.languages.length > 0 ? renderTags() : null
+              if (profile.data.languages.length > 0) renderTags()
             ],
           ),
         ),
         Expanded(
             child: DefaultTabController(
-          length: 2,
-          initialIndex: 1,
+          length: 3,
+          initialIndex: 2,
           child: Scaffold(
             appBar: TabBar(
               labelStyle: pagerTabTextStyle,
+              isScrollable: true,
               indicator: UnderlineTabIndicator(
-                  borderSide: BorderSide(
-                      width: 2.0, color: Theme.of(context).primaryColor),
-                  insets: EdgeInsets.symmetric(horizontal: 40.0)),
+                borderSide: BorderSide(
+                    width: 2.0, color: Theme.of(context).primaryColor),
+                insets: EdgeInsets.symmetric(horizontal: 40.0),
+              ),
               tabs: myTabs,
               labelColor: Theme.of(context).primaryColor,
               indicatorColor: Theme.of(context).primaryColor,
             ),
             body: TabBarView(children: [
+              renderBio(profile),
               renderRecommendation(profile),
               renderPhotoGrid(),
             ]),
@@ -336,21 +445,10 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   renderPhotoGrid() {
-    var images = <String>[
-      "https://images.unsplash.com/photo-1471879832106-c7ab9e0cee23?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxleHBsb3JlLWZlZWR8Mnx8fGVufDB8fHx8&w=1000&q=80",
-      "https://placeimg.com/500/500/any",
-      "https://placeimg.com/500/500/any",
-      "https://placeimg.com/500/500/any",
-      "https://placeimg.com/500/500/any",
-      "https://placeimg.com/500/500/any",
-      "https://placeimg.com/500/500/any",
-      "https://placeimg.com/500/500/any"
-    ];
-
     return Padding(
         padding: const EdgeInsets.all(8.0),
         child: GridView.builder(
-            itemCount: images.length,
+            itemCount: profile.data.profilePhotos.photosList.length,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3, crossAxisSpacing: 6.0, mainAxisSpacing: 6.0),
             itemBuilder: (BuildContext context, int index) {
@@ -360,13 +458,37 @@ class _ProfilePageState extends State<ProfilePage> {
                       context,
                       MaterialPageRoute(
                           builder: (context) => GalleryViewer(
-                                images: images,
+                                images: profile.data.profilePhotos.photosList,
                               )),
                     );
                   },
                   child: ClipRRect(
                       borderRadius: BorderRadius.circular(8.0),
-                      child: Image.network(images[index], fit: BoxFit.cover)));
+                      child: Stack(
+                        children: [
+                          Container(
+                              height: double.infinity,
+                              child: CustomNetworkImage(
+                                  imageUrl: profile.data.profilePhotos
+                                      .photosList[index].url)),
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Container(
+                                height: 30,
+                                width: double.infinity,
+                                child: MaterialButton(
+                                  color: Theme.of(context)
+                                      .primaryColor
+                                      .withOpacity(0.8),
+                                  onPressed: () {
+                                    showDeleteImageAlert(index);
+                                  },
+                                  child: Text("delete".tr(),
+                                      style: deleteAlbumPhotoStyle),
+                                )),
+                          ),
+                        ],
+                      )));
             }));
   }
 
@@ -395,6 +517,132 @@ class _ProfilePageState extends State<ProfilePage> {
           );
         },
       ),
+    );
+  }
+
+  renderBio(Profile profile) {
+    return SingleChildScrollView(
+      child: Card(
+        margin: EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                      margin: EdgeInsets.only(
+                          left: 30, top: 15, right: 30, bottom: 5),
+                      child: Text(
+                        "full_name".tr(),
+                        style: bioHeaderStyle,
+                      )),
+                ),
+                Container(
+                    height: 30,
+                    margin: EdgeInsets.only(left: 10, top: 10),
+                    child: OutlinedButton.icon(
+                      icon: Icon(
+                        Icons.edit_outlined,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                      label: Text("edit".tr(),
+                          style: TextStyle(
+                              fontSize: 11,
+                              fontFamily: KOFI_REGULAR,
+                              color: Theme.of(context).primaryColor)),
+                      onPressed: () {
+                        navigateToBio(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        side: BorderSide(
+                            width: 2.0, color: Theme.of(context).primaryColor),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(32.0),
+                        ),
+                      ),
+                    )
+                    // MaterialButton(
+                    //   shape: RoundedRectangleBorder(
+
+                    //       borderRadius: new BorderRadius.circular(30.0)),
+                    //   color: Colors.white,
+                    //   onPressed: () {},
+                    //   child: Text("edit".tr(),
+                    //       style: TextStyle(
+                    //           fontSize: 11,
+                    //           fontFamily: KOFI_REGULAR,
+                    //           color: Colors.white)),
+                    // ),
+                    ),
+              ],
+            ),
+            Container(
+                margin: EdgeInsets.only(left: 30, right: 30),
+                child: Text(
+                    profile.data.fullName != null ? profile.data.fullName : "",
+                    style: pagerTabTextStyle)),
+            Container(
+                margin: EdgeInsets.only(left: 30, top: 20, right: 30),
+                child: Text(
+                  "bio".tr(),
+                  style: bioHeaderStyle,
+                )),
+            Container(
+                margin: EdgeInsets.only(left: 30, bottom: 15, right: 30),
+                child: Text(profile.data.bio != null ? profile.data.bio : "",
+                    style: pagerTabTextStyle)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void navigateToBio(BuildContext context) async {
+    var response = await Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => BioPage(
+                fullname: profile.data.fullName, bio: profile.data.bio)));
+
+    if (response == "OK") {
+      getUserProfile();
+    }
+  }
+
+  Future<void> showDeleteImageAlert(int index) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('delete_photo'.tr(), style: bottomTabStyle),
+          content: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Text('delete_msg'.tr(), style: bottomTabStyle),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('ok'.tr(), style: bottomTabStyle),
+              onPressed: () {
+                Navigator.of(context).pop();
+
+                deleteGridPic(index);
+              },
+            ),
+            TextButton(
+              child: Text('cancel'.tr(), style: bottomTabStyle),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

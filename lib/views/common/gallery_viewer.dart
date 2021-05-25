@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_app/models/profile.dart';
 import 'package:gallery_view/gallery_view.dart';
 
 class GalleryViewer extends StatefulWidget {
   GalleryViewer({this.images}) : super();
 
-  List<String> images;
+  List<Photo> images;
   @override
   GalleryViewerState createState() => GalleryViewerState();
 }
@@ -40,13 +41,17 @@ class GalleryViewerState extends State<GalleryViewer> {
 
   @override
   Widget build(BuildContext context) {
+    List<String> photos = <String>[];
+    widget.images.forEach((element) {
+      photos.add(element.url);
+    });
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Text("Gellary"),
       ),
-      body: GalleryView(imageUrlList: widget.images),
+      body: GalleryView(imageUrlList: photos),
     );
   }
 }

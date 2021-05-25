@@ -28,7 +28,7 @@ class Data {
   bool workStatus;
   List<String> languages;
   List<Null> workFields;
-  Null bio;
+  String bio;
   String sId;
   String username;
   String fullName;
@@ -112,15 +112,15 @@ class Data {
 }
 
 class ProfilePhotos {
-  List<PhotosList> photosList;
+  List<Photo> photosList;
 
   ProfilePhotos({this.photosList});
 
   ProfilePhotos.fromJson(Map<String, dynamic> json) {
     if (json['photosList'] != null) {
-      photosList = <PhotosList>[];
+      photosList = <Photo>[];
       json['photosList'].forEach((v) {
-        photosList.add(new PhotosList.fromJson(v));
+        photosList.add(new Photo.fromJson(v));
       });
     }
   }
@@ -134,13 +134,13 @@ class ProfilePhotos {
   }
 }
 
-class PhotosList {
+class Photo {
   String sId;
   String url;
 
-  PhotosList({this.sId, this.url});
+  Photo({this.sId, this.url});
 
-  PhotosList.fromJson(Map<String, dynamic> json) {
+  Photo.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     url = json['url'];
   }
