@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter_app/extentions/extentions.dart';
+import 'package:flutter_app/network/network_client.dart';
+import 'package:flutter_app/constants/apis_constants.dart';
+import 'package:flutter_app/views/common/loading_dialog.dart';
+import 'package:flutter_app/views/common/toast.dart';
 
 class Register extends StatefulWidget {
   Register({Key key}) : super(key: key);
@@ -11,10 +16,14 @@ class Register extends StatefulWidget {
 }
 
 class _registerState extends State<Register> {
+  String fullName = "";
+  String email = "";
+  String password = "";
+  String confirmPassword = "";
   String userTypeValue;
   String genderValue;
   DateTime selectedDate;
-  final DateFormat formatter = DateFormat('yyyy-MM-dd');
+  final DateFormat formatter = DateFormat('M-dd-yyyy');
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,7 +64,13 @@ class _registerState extends State<Register> {
                           margin: EdgeInsets.only(
                               left: 30, right: 30, top: 30, bottom: 20),
                           child: TextFormField(
+                            initialValue: fullName,
                             cursorColor: Theme.of(context).primaryColor,
+                            onChanged: (text) {
+                              setState(() {
+                                fullName = text;
+                              });
+                            },
                             decoration: InputDecoration(
                               contentPadding:
                                   EdgeInsets.symmetric(vertical: -5),
@@ -74,6 +89,12 @@ class _registerState extends State<Register> {
                         Container(
                           margin: EdgeInsets.only(left: 30, right: 30),
                           child: TextFormField(
+                            initialValue: email,
+                            onChanged: (text) {
+                              setState(() {
+                                email = text;
+                              });
+                            },
                             decoration: InputDecoration(
                               contentPadding:
                                   EdgeInsets.symmetric(vertical: -5),
@@ -88,6 +109,12 @@ class _registerState extends State<Register> {
                           margin: EdgeInsets.only(
                               left: 30, right: 30, top: 20, bottom: 20),
                           child: TextFormField(
+                            initialValue: password,
+                            onChanged: (text) {
+                              setState(() {
+                                password = text;
+                              });
+                            },
                             cursorColor: Theme.of(context).primaryColor,
                             decoration: InputDecoration(
                               contentPadding:
@@ -107,6 +134,12 @@ class _registerState extends State<Register> {
                         Container(
                           margin: EdgeInsets.only(left: 30, right: 30),
                           child: TextFormField(
+                            initialValue: confirmPassword,
+                            onChanged: (text) {
+                              setState(() {
+                                confirmPassword = text;
+                              });
+                            },
                             cursorColor: Theme.of(context).primaryColor,
                             decoration: InputDecoration(
                               contentPadding:
@@ -244,7 +277,11 @@ class _registerState extends State<Register> {
                                   borderRadius: BorderRadius.circular(18.0),
                                 ))),
                             onPressed: () {
-                              print('Pressed');
+                              if (validateData()) {
+                                registerUser();
+                              } else {
+                                ToastUtil.showToast("please_fill_data".tr());
+                              }
                             },
                           ),
                         ),
@@ -269,5 +306,60 @@ class _registerState extends State<Register> {
       setState(() {
         selectedDate = picked;
       });
+  }
+
+  registerUser() async {
+    DialogUtil.showLoadingDialog(context);
+
+    String gvalue = "";
+    if (genderValue == 'male'.tr()) {
+      gvalue = "male";
+    } else if (genderValue == 'female'.tr()) {
+      gvalue = "female";
+    } else {
+      gvalue = "other";
+    }
+
+    String wvalue;
+    if (userTypeValue == 'worker'.tr()) {
+      wvalue = "worker";
+    } else if (userTypeValue == 'work_owner'.tr()) {
+      wvalue = "employer";
+    }
+    var params = {
+      "fullName": fullName,
+      "email": email,
+      "password": password,
+      "passwordConfirm": confirmPassword,
+      "userType": wvalue,
+      "gender": gvalue,
+      "birthday": formatter.format(selectedDate)
+    };
+    var response = await NetworkClient.getInstance().request(
+        requestType: RequestType.POST, path: REGISTER_USER, parameter: params);
+    Navigator.pop(context);
+    if (response.statusCode == 200) {
+      Navigator.pop(context);
+      ToastUtil.showToast("Register Success");
+    } else {
+      var data = jsonDecode(response.body);
+      ToastUtil.showToast(data["error"]);
+    }
+  }
+
+  bool validateData() {
+    if (password.length < 8) {
+      ToastUtil.showToast("short password");
+      return false;
+    }
+    return fullName.isNotEmpty &&
+        email.isNotEmpty &&
+        password.isNotEmpty &&
+        confirmPassword.isNotEmpty &&
+        (password == confirmPassword) &&
+        password.length >= 8 &&
+        genderValue != null &&
+        userTypeValue != null &&
+        selectedDate != null;
   }
 }

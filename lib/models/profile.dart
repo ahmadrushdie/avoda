@@ -1,3 +1,5 @@
+import 'package:flutter_app/models/work_fields.dart';
+
 class Profile {
   String status;
   Data data;
@@ -27,7 +29,7 @@ class Data {
   String country;
   bool workStatus;
   List<String> languages;
-  List<Null> workFields;
+  List<WorkField> workFields;
   String bio;
   String sId;
   String username;
@@ -64,10 +66,10 @@ class Data {
     workStatus = json['workStatus'];
     languages = json['languages'].cast<String>();
     if (json['workFields'] != null) {
-      // workFields = new List<Null>();
-      // json['workFields'].forEach((v) {
-      //   workFields.add(new Null.fromJson(v));
-      // });
+      workFields = <WorkField>[];
+      json['workFields'].forEach((v) {
+        workFields.add(new WorkField.fromJson(v));
+      });
     }
     bio = json['bio'];
     sId = json['_id'];
@@ -155,13 +157,13 @@ class Photo {
 
 class Reference {
   bool approved;
-  String _id;
+  String refId;
   String text;
   ReferenceFrom from;
 
   Reference.fromJson(Map<String, dynamic> json) {
     approved = json["approved"];
-    _id = json["_id"];
+    refId = json["_id"];
     text = json["text"];
     from = ReferenceFrom.fromJson(json["from"]);
   }

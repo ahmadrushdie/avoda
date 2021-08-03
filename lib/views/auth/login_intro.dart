@@ -5,6 +5,7 @@ import 'package:flutter_app/views/auth/login.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_app/utils/PrefrenceUtil.dart';
 import 'package:flutter_app/views/worker/home_page.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 
 class LoginIntro extends StatefulWidget {
   LoginIntro({Key key}) : super(key: key);
@@ -17,6 +18,7 @@ class _loginState extends State<LoginIntro> {
   bool status = false;
   List<bool> isSelected = [false, false];
 
+  ImageProvider logo = AssetImage("assets/images/login_bg.jpg");
   @override
   void initState() {
     super.initState();
@@ -53,7 +55,7 @@ class _loginState extends State<LoginIntro> {
                 ),
                 child: Image(
                   fit: BoxFit.cover,
-                  image: AssetImage('assets/images/login_bg.jpg'),
+                  image: logo,
                 ),
               ),
               Container(
@@ -197,7 +199,7 @@ class _loginState extends State<LoginIntro> {
                                     borderRadius: BorderRadius.circular(18.0),
                                   ))),
                               onPressed: () {
-                                print('Pressed');
+                                loginWithFacebook();
                               },
                             ),
                           )),
@@ -227,5 +229,21 @@ class _loginState extends State<LoginIntro> {
         isSelected = temp;
       });
     });
+  }
+
+  void loginWithFacebook() async {
+    final facebookLogin = FacebookLogin();
+    final result = await facebookLogin.logIn(['email']);
+
+    switch (result.status) {
+      case FacebookLoginStatus.loggedIn:
+        print(result.accessToken.token);
+        break;
+      case FacebookLoginStatus.cancelledByUser:
+        break;
+      case FacebookLoginStatus.error:
+        print(result.accessToken);
+        break;
+    }
   }
 }

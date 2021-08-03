@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter_app/chat/add_chat_view.dart';
+import 'package:flutter_app/chat/chat_list_view.dart';
 import 'package:flutter_app/constants/fonts.dart' as Constants;
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_app/views/worker/posted_jobs.dart';
@@ -33,28 +35,13 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
     super.initState();
   }
 
-  List<Widget> _widgetOptions = <Widget>[
-    Text(
-      'Messages',
-    ),
-    PostedJobs(),
-    ProfilePage(),
-  ];
-
-  String getTitleByTabIndex(int index) {
-    switch (index) {
-      case 0:
-        return "Adds";
-        break;
-      case 1:
-        return "Search";
-        break;
-
-      case 2:
-        return "Messages";
-        break;
-    }
-  }
+  // IndexedStack _widgetOptions = IndexedStack(index: selectedIndex, children: [
+  //   Text(
+  //     'Messages',
+  //   ),
+  //   PostedJobs(),
+  //   ProfilePage(),
+  // ]);
 
   @override
   Widget build(BuildContext context) {
@@ -76,8 +63,11 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
       // ),
 
       body: Center(
-        child: _widgetOptions.elementAt(selectedIndex),
-      ),
+          child: IndexedStack(index: selectedIndex, children: [
+        Center(child: ChatListView()),
+        Center(child: PostedJobs()),
+        Center(child: ProfilePage()),
+      ])),
 
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[

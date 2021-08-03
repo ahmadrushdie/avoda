@@ -5,6 +5,7 @@ import 'package:flutter_app/extentions/extentions.dart';
 import 'package:flutter_app/models/user.dart';
 import 'package:flutter_app/views/auth/register.dart';
 import 'package:flutter_app/constants/fonts.dart';
+import 'package:flutter_app/views/employer/employer_home_page.dart';
 import 'package:flutter_app/views/worker/home_page.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -178,6 +179,7 @@ class _loginState extends State<Login> {
       // then parse the JSON.
       var user = User.fromJson(jsonDecode(response.body));
       PrefrenceUtil.saveUser(user);
+      User.authToken = user.token;
       print(user.token);
 
       // Navigator.push(
@@ -190,13 +192,23 @@ class _loginState extends State<Login> {
 
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
-              builder: (context) => WorkerHomePage(
-                    title: "Home",
-                  )),
+              builder: (context) => getUserHomeScreen(user.userType)),
           (Route<dynamic> route) => false);
     } else if (response.statusCode == 401) {
       var data = jsonDecode(response.body);
       print(data["userid"]);
+    }
+  }
+
+  getUserHomeScreen(String userType) {
+    if (userType == "worker") {
+      return WorkerHomePage(
+        title: "Home",
+      );
+    } else if (userType == "employer") {
+      return EmployerHomePage(
+        title: "Home",
+      );
     }
   }
 

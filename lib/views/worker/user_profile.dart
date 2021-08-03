@@ -1,11 +1,19 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter_app/chat/add_chat_view.dart';
+import 'package:flutter_app/eventbus/reload_fav_event.dart';
 import 'package:flutter_app/models/profile.dart';
+import 'package:flutter_app/network/network_client.dart';
 import 'package:flutter_app/utils/PrefrenceUtil.dart';
+import 'package:flutter_app/views/auth/login_intro.dart';
 import 'package:flutter_app/views/common/bio_view.dart';
 import 'package:flutter_app/views/common/gallery_viewer.dart';
+import 'package:flutter_app/views/common/loading_dialog.dart';
+import 'package:flutter_app/views/common/no_records_view.dart';
 import 'package:flutter_app/views/common/rounded_image.dart';
 import 'package:flutter_app/views/common/toast.dart';
+import 'package:flutter_app/views/employer/add_recommendation_view.dart';
 import 'package:flutter_app/views/worker/settings.dart';
 import 'package:flutter_tags/flutter_tags.dart';
 import 'package:http/http.dart' as http;
@@ -17,10 +25,13 @@ import 'package:flutter_app/extentions/extentions.dart';
 import 'package:flutter_app/models/user.dart';
 import 'package:flutter_app/constants/fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:event_bus/event_bus.dart';
+
+EventBus eventBus = EventBus();
 
 // ignore: must_be_immutable
 class ProfilePage extends StatefulWidget {
-  ProfilePage({Key key}) : super(key: key);
+  ProfilePage({Key key, this.workerId}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -30,14 +41,16 @@ class ProfilePage extends StatefulWidget {
   // case the title) provided by the parent (in this case the App widget) and
   // used by the build method of the State. Fields in a Widget subclass are
   // always marked "final".
-
+  String workerId;
   String title;
+  VoidCallback reloadProfile;
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<ProfilePage>
+    with SingleTickerProviderStateMixin {
   int selectedIndex = 0;
   File _image;
   final picker = ImagePicker();
@@ -48,12 +61,26 @@ class _ProfilePageState extends State<ProfilePage> {
   var deleteAlbumPhotoStyle =
       TextStyle(fontFamily: KOFI_REGULAR, fontSize: 14, color: Colors.white);
   Profile profile;
+
+  TabController _tabController;
+  int _activeIndex = 0;
+
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(
+      vsync: this,
+      length: 3,
+    );
 
-    getUserProfile();
+    getUserProfile(widget.workerId);
     print(User.authToken);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _tabController.dispose();
   }
 
   Future _imgFromCamera() async {
@@ -129,13 +156,12 @@ class _ProfilePageState extends State<ProfilePage> {
         });
   }
 
-  getUserProfile() async {
+  getUserProfile(String userId) async {
     var user = await PrefrenceUtil.getUser();
-    final response = await http.get(Uri.https(BASE_URL, USER_PORIFLE + user.id),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          "Authorization": user.token
-        });
+
+    var response = await NetworkClient.getInstance().request(
+        requestType: RequestType.GET,
+        path: USER_PORIFLE + (userId == null ? user.id : userId));
 
     if (response.statusCode == 200) {
       var profile = Profile.fromJson(jsonDecode(response.body));
@@ -185,27 +211,65 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
+  updateRefrence(int position, String id, String status) async {
+    showLoaderDialog(context);
+
+    var params = <String, String>{"id": id, "status": status};
+    var response = await NetworkClient.getInstance().request(
+        requestType: RequestType.POST,
+        path: UPDATE_REFRENCE_STATUS,
+        parameter: params);
+
+    Navigator.pop(context);
+    if (response.statusCode == 200) {
+      var tempProf = profile;
+      if (status == "accept") {
+        tempProf.data.usersReference.refList[position].approved = true;
+      } else {
+        tempProf.data.usersReference.refList.removeAt(position);
+      }
+      setState(() {
+        profile = tempProf;
+      });
+    }
+  }
+
+  addToFavurite() async {
+    showLoaderDialog(context);
+
+    var response = await NetworkClient.getInstance().request(
+        requestType: RequestType.POST, path: ADD_FAVORITE + widget.workerId);
+
+    Navigator.pop(context);
+    if (response.statusCode == 200) {
+      eventBus.fire(ReloadFavEvent());
+
+      ToastUtil.showToast("add_to_fav_sucess".tr());
+    }
+  }
+
   showLoaderDialog(BuildContext context) {
-    AlertDialog alert = AlertDialog(
-      content: new Row(
-        children: [
-          CircularProgressIndicator(),
-          Container(
-              margin: EdgeInsets.only(left: 7, right: 20),
-              child: Text(
-                "please_wait".tr(),
-                style: TextStyle(fontFamily: KOFI_REGULAR),
-              )),
-        ],
-      ),
-    );
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
+    DialogUtil.showLoadingDialog(context);
+    // AlertDialog alert = AlertDialog(
+    //   content: new Row(
+    //     children: [
+    //       CircularProgressIndicator(),
+    //       Container(
+    //           margin: EdgeInsets.only(left: 7, right: 20),
+    //           child: Text(
+    //             "please_wait".tr(),
+    //             style: TextStyle(fontFamily: KOFI_REGULAR),
+    //           )),
+    //     ],
+    //   ),
+    // );
+    // showDialog(
+    //   barrierDismissible: false,
+    //   context: context,
+    //   builder: (BuildContext context) {
+    //     return alert;
+    //   },
+    // );
   }
 
   @override
@@ -216,7 +280,20 @@ class _ProfilePageState extends State<ProfilePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {
+          _activeIndex = _tabController.index;
+        });
+      }
+    });
+
     return Scaffold(
+        appBar: AppBar(
+          title: Text("account".tr(),
+              style: TextStyle(fontFamily: KOFI_REGULAR, fontSize: 15)),
+        ),
         body: profile == null ? showLoading() : renderProfile(profile));
   }
 
@@ -234,19 +311,14 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Column(children: [
               Row(
                 children: [
-                  Container(
-                    margin: EdgeInsets.only(bottom: 8),
-                    child: Text(
-                      "languages".tr(),
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-                          fontFamily: KOFI_REGULAR, color: Colors.white),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 6.0),
+                    child: Icon(
+                      Icons.language_outlined,
+                      color: Colors.white,
+                      size: 23.0,
                     ),
                   ),
-                ],
-              ),
-              Row(
-                children: [
                   Tags(
                     itemCount: profile.data.languages.length, // required
                     itemBuilder: (int index) {
@@ -262,12 +334,68 @@ class _ProfilePageState extends State<ProfilePage> {
                         pressEnabled: false,
                         elevation: 1,
                         padding: EdgeInsets.only(
-                            left: 10, right: 10, top: 5, bottom: 5),
+                            left: 10, right: 10, top: 0, bottom: 0),
 
                         color: HexColor.fromHex("#ECF1FA"),
-                        textStyle: TextStyle(
-                          fontSize: 12,
-                        ),
+                        textStyle:
+                            TextStyle(fontSize: 10, fontFamily: KOFI_REGULAR),
+                        combine: ItemTagsCombine.withTextBefore,
+                        // image: ItemTagsImage(
+                        //     image: AssetImage(
+                        //         "img.jpg") // OR NetworkImage("https://...image.png")
+                        //     ), // OR null,
+                        // icon: ItemTagsIcon(
+                        //   icon: Icons.add,
+                        // ), // OR null,
+                      );
+                    },
+                  ),
+                ],
+              )
+            ])));
+  }
+
+  renderWorkingFields() {
+    return Align(
+        alignment: Alignment.topRight,
+        child: Container(
+            margin: EdgeInsets.only(top: 0, right: 0, bottom: 20),
+            child: Column(children: [
+              Row(
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      "work_spesf".tr(),
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                          fontFamily: KOFI_REGULAR, color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Tags(
+                    itemCount: profile.data.workFields.length, // required
+                    itemBuilder: (int index) {
+                      final item = profile.data.workFields[index];
+
+                      return ItemTags(
+                        // Each ItemTags must contain a Key. Keys allow Flutter to
+                        // uniquely identify widgets.
+                        key: Key(index.toString()),
+                        index: index, // required
+                        title: item.getFieldName(context.locale.languageCode),
+                        active: false,
+                        pressEnabled: false,
+                        elevation: 1,
+                        padding: EdgeInsets.only(
+                            left: 10, right: 10, top: 1, bottom: 1),
+
+                        color: HexColor.fromHex("#ECF1FA"),
+                        textStyle:
+                            TextStyle(fontSize: 10, fontFamily: KOFI_REGULAR),
                         combine: ItemTagsCombine.withTextBefore,
                         // image: ItemTagsImage(
                         //     image: AssetImage(
@@ -294,7 +422,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.only(top: 70, right: 20),
+          padding: EdgeInsets.only(top: 30, right: 20),
           decoration: BoxDecoration(
               gradient: LinearGradient(begin: Alignment.topLeft, stops: [
             0.1,
@@ -319,26 +447,27 @@ class _ProfilePageState extends State<ProfilePage> {
                           isCircular: true,
                           hieght: 100,
                         ),
-                        Container(
-                          child: Align(
-                              alignment: Alignment.bottomRight,
-                              child: Container(
-                                width: 40,
-                                height: 30,
-                                margin: EdgeInsets.only(left: 0),
-                                child: IconButton(
-                                    icon: const Icon(
-                                      Icons.photo_camera,
-                                      color: Colors.white,
-                                    ),
-                                    onPressed: () {
-                                      _showPicker(context);
-                                    }),
-                              )),
-                          margin: EdgeInsets.only(top: 0),
-                          width: 100.0,
-                          height: 100.0,
-                        ),
+                        if (widget.workerId == null)
+                          Container(
+                            child: Align(
+                                alignment: Alignment.bottomRight,
+                                child: Container(
+                                  width: 40,
+                                  height: 30,
+                                  margin: EdgeInsets.only(left: 0),
+                                  child: IconButton(
+                                      icon: const Icon(
+                                        Icons.photo_camera,
+                                        color: Colors.white,
+                                      ),
+                                      onPressed: () {
+                                        _showPicker(context);
+                                      }),
+                                )),
+                            margin: EdgeInsets.only(top: 0),
+                            width: 100.0,
+                            height: 100.0,
+                          ),
                       ],
                     ),
                     Expanded(
@@ -360,26 +489,17 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                               ),
                             ),
-                            if (profile.data.workFields != null &&
-                                profile.data.workFields.length > 0)
-                              Align(
-                                  alignment: Alignment.centerRight,
-                                  child: Text(
-                                    "عامل بناء",
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontFamily: KOFI_REGULAR,
-                                      color: Colors.white,
-                                    ),
-                                  )),
                             Align(
                                 alignment: Alignment.centerRight,
                                 child: Container(
                                   width: 200,
                                   margin: EdgeInsets.only(
-                                      right: 0, top: 0, bottom: 30),
+                                      right: 0, top: 0, bottom: 4),
                                   child: ElevatedButton(
-                                    child: Text("logout".tr(),
+                                    child: Text(
+                                        widget.workerId == null
+                                            ? "logout".tr()
+                                            : "send_message".tr(),
                                         style: TextStyle(
                                             fontFamily: KOFI_REGULAR,
                                             fontWeight: FontWeight.normal)),
@@ -393,26 +513,51 @@ class _ProfilePageState extends State<ProfilePage> {
                                           borderRadius:
                                               BorderRadius.circular(18.0),
                                         ))),
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      if (widget.workerId != null) {
+                                        sendMessage(widget.workerId);
+                                      } else {
+                                        PrefrenceUtil.deleteUser();
+                                        Navigator.of(context)
+                                            .pushAndRemoveUntil(
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        LoginIntro()),
+                                                (Route<dynamic> route) =>
+                                                    false);
+                                      }
+                                    },
                                   ),
                                 )),
+                            if (profile.data.languages != null &&
+                                profile.data.languages.length > 0)
+                              Align(
+                                  alignment: Alignment.centerRight,
+                                  child: renderTags()),
                           ],
                         ),
                       ),
                     ),
                     Container(
                         margin: EdgeInsets.only(top: 3),
-                        child: IconButton(
-                            icon: Icon(Icons.settings, color: Colors.white),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => SettingPage()),
-                              );
-                            }))
+                        child: widget.workerId == null
+                            ? IconButton(
+                                icon: Icon(
+                                    widget.workerId == null
+                                        ? Icons.settings
+                                        : Icons.arrow_drop_down_circle_outlined,
+                                    color: Colors.white),
+                                onPressed: () {
+                                  navigateToSettings();
+                                })
+                            : renderDropDown())
                   ]),
-              if (profile.data.languages.length > 0) renderTags()
+              if (profile.data.languages.length > 0)
+                renderWorkingFields()
+              else
+                Container(
+                  margin: EdgeInsets.only(bottom: 20),
+                )
             ],
           ),
         ),
@@ -422,6 +567,8 @@ class _ProfilePageState extends State<ProfilePage> {
           initialIndex: 2,
           child: Scaffold(
             appBar: TabBar(
+              onTap: (int index) {},
+              controller: _tabController,
               labelStyle: pagerTabTextStyle,
               isScrollable: true,
               indicator: UnderlineTabIndicator(
@@ -433,15 +580,74 @@ class _ProfilePageState extends State<ProfilePage> {
               labelColor: Theme.of(context).primaryColor,
               indicatorColor: Theme.of(context).primaryColor,
             ),
-            body: TabBarView(children: [
+            body: TabBarView(controller: _tabController, children: [
               renderBio(profile),
               renderRecommendation(profile),
               renderPhotoGrid(),
             ]),
+            floatingActionButton: _tabController.index == 1
+                ? FloatingActionButton(
+                    child: Icon(Icons.add),
+                    onPressed: () {
+                      navigateToAddRecommendation();
+                    },
+                  )
+                : null,
           ),
         )),
       ],
     );
+  }
+
+  navigateToSettings() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => SettingPage(
+                profile: profile,
+                callback: (updatedProfile) {
+                  setState(() {
+                    profile = updatedProfile;
+                  });
+                },
+              )),
+    );
+  }
+
+  navigateToAddRecommendation() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) =>
+              AddRecommendationPage(workerId: widget.workerId)),
+    );
+  }
+
+  renderDropDown() {
+    return PopupMenuButton<String>(
+        icon: Icon(Icons.more_vert, color: Colors.white), // add this line
+
+        onSelected: (String result) {
+          if (result == "1") {
+            addToFavurite();
+          }
+        },
+        itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              PopupMenuItem<String>(
+                value: "1",
+                child: Text(
+                  'add_favourite'.tr(),
+                  style: TextStyle(fontFamily: KOFI_REGULAR),
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: "2",
+                child: Text(
+                  'block_user'.tr(),
+                  style: TextStyle(fontFamily: KOFI_REGULAR),
+                ),
+              ),
+            ]);
   }
 
   renderPhotoGrid() {
@@ -494,30 +700,51 @@ class _ProfilePageState extends State<ProfilePage> {
 
   renderRecommendation(Profile profile) {
     var list = profile.data.usersReference.refList;
+
     return Container(
-      child: ListView.builder(
-        itemCount: list.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Text(list[index].from.fullName),
-                      Text(list[index].text),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
+        child: list.length > 0
+            ? ListView.builder(
+                itemCount: list.length,
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Container(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Row(children: [
+                                CustomNetworkImage(
+                                    width: 45,
+                                    hieght: 45,
+                                    isCircular: true,
+                                    imageUrl: list[index].from.userPic),
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      bottom: 12.0, right: 10),
+                                  child: Text(list[index].from.fullName,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                              ]),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 13.0),
+                                child: Text(list[index].text),
+                              ),
+                              if (!list[index].approved &&
+                                  widget.workerId == null)
+                                renderApproveControls(index, list)
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              )
+            : NoDataView(text: "no_recommendation".tr()));
   }
 
   renderBio(Profile profile) {
@@ -539,43 +766,32 @@ class _ProfilePageState extends State<ProfilePage> {
                         style: bioHeaderStyle,
                       )),
                 ),
-                Container(
-                    height: 30,
-                    margin: EdgeInsets.only(left: 10, top: 10),
-                    child: OutlinedButton.icon(
-                      icon: Icon(
-                        Icons.edit_outlined,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      label: Text("edit".tr(),
-                          style: TextStyle(
-                              fontSize: 11,
-                              fontFamily: KOFI_REGULAR,
-                              color: Theme.of(context).primaryColor)),
-                      onPressed: () {
-                        navigateToBio(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        side: BorderSide(
-                            width: 2.0, color: Theme.of(context).primaryColor),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(32.0),
+                if (widget.workerId == null)
+                  Container(
+                      height: 30,
+                      margin: EdgeInsets.only(left: 10, top: 10),
+                      child: OutlinedButton.icon(
+                        icon: Icon(
+                          Icons.edit_outlined,
+                          color: Theme.of(context).primaryColor,
                         ),
-                      ),
-                    )
-                    // MaterialButton(
-                    //   shape: RoundedRectangleBorder(
-
-                    //       borderRadius: new BorderRadius.circular(30.0)),
-                    //   color: Colors.white,
-                    //   onPressed: () {},
-                    //   child: Text("edit".tr(),
-                    //       style: TextStyle(
-                    //           fontSize: 11,
-                    //           fontFamily: KOFI_REGULAR,
-                    //           color: Colors.white)),
-                    // ),
-                    ),
+                        label: Text("edit".tr(),
+                            style: TextStyle(
+                                fontSize: 11,
+                                fontFamily: KOFI_REGULAR,
+                                color: Theme.of(context).primaryColor)),
+                        onPressed: () {
+                          navigateToBio(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          side: BorderSide(
+                              width: 2.0,
+                              color: Theme.of(context).primaryColor),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(32.0),
+                          ),
+                        ),
+                      )),
               ],
             ),
             Container(
@@ -607,7 +823,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 fullname: profile.data.fullName, bio: profile.data.bio)));
 
     if (response == "OK") {
-      getUserProfile();
+      getUserProfile(widget.workerId);
     }
   }
 
@@ -644,5 +860,56 @@ class _ProfilePageState extends State<ProfilePage> {
         );
       },
     );
+  }
+
+  renderApproveControls(int index, List<Reference> list) {
+    var buttonTextStyle =
+        TextStyle(color: Colors.white, fontFamily: KOFI_REGULAR);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: MaterialButton(
+              color: Colors.green.withOpacity(0.8),
+              onPressed: () {
+                updateRefrence(index, list[index].refId, "accept");
+              },
+              child: Text("approve".tr(), style: buttonTextStyle),
+            ),
+          ),
+          Container(
+            width: 10,
+          ),
+          Expanded(
+            child: MaterialButton(
+              color: Colors.red.withOpacity(0.8),
+              onPressed: () {
+                updateRefrence(index, list[index].refId, "remove");
+              },
+              child: Text(
+                "reject".tr(),
+                style: buttonTextStyle,
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  sendMessage(String workerId) async {
+    var response = await NetworkClient.getInstance()
+        .request(requestType: RequestType.GET, path: GET_CHAT_ID + workerId);
+    if (response.statusCode == 200) {
+      var chatObj = jsonDecode(response.body);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) =>
+                AddChatPage(reciverId: workerId, chatId: chatObj["chatID"])),
+      );
+    }
   }
 }

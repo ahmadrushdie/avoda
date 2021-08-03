@@ -6,6 +6,7 @@ import 'package:flutter_app/views/favourite_jobs.dart';
 import 'package:flutter_app/views/auth/login_intro.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_app/utils/PrefrenceUtil.dart';
+import 'package:flutter_app/views/splash.dart';
 import 'package:flutter_app/views/worker/home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -45,43 +46,42 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // _locale = new Locale("en", "");
     print(context.locale.toString());
-
+    precacheImage(AssetImage("assets/images/login_bg.jpg"), context);
     return MaterialApp(
-        title: 'Flutter Demo',
-        localizationsDelegates: context.localizationDelegates,
-        supportedLocales: context.supportedLocales,
-        locale: context.locale,
-        theme: ThemeData(
-          // This is the theme of your application.
-          //
-          // Try running your application with "flutter run". You'll see the
-          // application has a blue toolbar. Then, without quitting the app, try
-          // changing the primarySwatch below to Colors.green and then invoke
-          // "hot reload" (press "r" in the console where you ran "flutter run",
-          // or simply save your changes to "hot reload" in a Flutter IDE).
-          // Notice that the counter didn't reset back to zero; the application
-          // is not restarted.
-          primaryColor: HexColor.fromHex("#5c6bc0"),
-          accentColor: HexColor.fromHex("#5c6bc0"),
-        ),
-        home: FutureBuilder<bool>(
-          future: checkIfUserLoggedin(),
-          builder: (buildContext, snapshot) {
-            if (snapshot.hasData) {
-              if (snapshot.data)
-                return WorkerHomePage(
-                  title: "home".tr(),
-                );
-              return LoginIntro();
-            } else {
-              return Container(
-                  height: double.infinity,
-                  width: double.infinity,
-                  decoration: BoxDecoration(color: Colors.amber),
-                  child: CircularProgressIndicator());
-            }
-          },
-        ));
+      title: 'Flutter Demo',
+      localizationsDelegates: context.localizationDelegates,
+      supportedLocales: context.supportedLocales,
+      locale: context.locale,
+      theme: ThemeData(
+        // This is the theme of your application.
+        //
+        // Try running your application with "flutter run". You'll see the
+        // application has a blue toolbar. Then, without quitting the app, try
+        // changing the primarySwatch below to Colors.green and then invoke
+        // "hot reload" (press "r" in the console where you ran "flutter run",
+        // or simply save your changes to "hot reload" in a Flutter IDE).
+        // Notice that the counter didn't reset back to zero; the application
+        // is not restarted.
+        primaryColor: HexColor.fromHex("#5c6bc0"),
+        accentColor: HexColor.fromHex("#5c6bc0"),
+      ),
+      home: Splash(),
+      // home: FutureBuilder<bool>(
+      //   future: checkIfUserLoggedin(),
+      //   builder: (buildContext, snapshot) {
+      //     if (snapshot.hasData) {
+      //       if (snapshot.data)
+      //       return LoginIntro();
+      //     } else {
+      //       return Container(
+      //           height: double.infinity,
+      //           width: double.infinity,
+      //           decoration: BoxDecoration(color: Colors.amber),
+      //           child: CircularProgressIndicator());
+      //     }
+      //   },
+      // )
+    );
   }
 }
 

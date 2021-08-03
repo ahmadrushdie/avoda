@@ -29,6 +29,11 @@ class PrefrenceUtil {
     prefs.setString("user", json.encode(user));
   }
 
+  static void deleteUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove("user");
+  }
+
   static Future<User> getUser() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var jsonString = prefs.getString("user");

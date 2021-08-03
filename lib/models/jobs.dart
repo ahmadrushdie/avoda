@@ -14,6 +14,13 @@ class Jobs {
         data.add(new Job.fromJson(v));
       });
     }
+
+    if (json['jobsList'] != null) {
+      data = <Job>[];
+      json['jobsList'].forEach((v) {
+        data.add(new Job.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {

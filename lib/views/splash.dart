@@ -1,10 +1,15 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_app/customIcons/app_icons.dart';
-import 'package:flutter_app/extentions/extentions.dart';
-import 'package:flutter_app/views/auth/login.dart';
+
+import 'package:flutter_app/models/user.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter_app/utils/PrefrenceUtil.dart';
+import 'package:flutter_app/views/employer/employer_home_page.dart';
 import 'package:flutter_app/views/worker/home_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'auth/login_intro.dart';
 
 class Splash extends StatefulWidget {
   Splash({Key key}) : super(key: key);
@@ -20,35 +25,57 @@ class _splashState extends State<Splash> {
   @override
   void initState() {
     super.initState();
-    getLocale();
+    checkUserType().then((value) => {
+          Timer(
+              Duration(seconds: 2),
+              () => Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                      builder: (context) => getUserHomeScreen(value)),
+                  (Route<dynamic> route) => false))
+        });
+  }
+
+  getUserHomeScreen(String userType) {
+    if (userType == null) {
+      return LoginIntro();
+    } else if (userType == "worker") {
+      return WorkerHomePage(
+        title: "home".tr(),
+      );
+    } else if (userType == "employer") {
+      return EmployerHomePage(
+        title: "home".tr(),
+      );
+    } else {
+      return LoginIntro();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-          child: Image(
-        fit: BoxFit.cover,
-        width: 100,
-        height: 100,
-        image: AssetImage('assets/images/login_bg.jpg'),
-      )),
+      body: Stack(
+        children: [
+          Center(
+            child: Container(
+                child: Image(
+              fit: BoxFit.cover,
+              image: AssetImage('assets/images/logo.png'),
+            )),
+          ),
+        ],
+      ),
     );
   }
 
-  getLocale() async {
-    PrefrenceUtil.getLanguageLocale().then((value) {
-      if (value.languageCode == "ar") {
-        isSelected[1] = false;
-        isSelected[0] = true;
-      } else {
-        isSelected[0] = false;
-        isSelected[1] = true;
-      }
-
-      setState(() {
-        isSelected = isSelected;
-      });
-    });
+  Future<String> checkUserType() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var jsonString = prefs.getString("user");
+    User user;
+    if (jsonString != null) {
+      user = User.fromJson(json.decode(jsonString));
+      User.authToken = user.token;
+    }
+    return user != null ? user.userType : null;
   }
 }

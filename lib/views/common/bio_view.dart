@@ -25,7 +25,10 @@ class _BioPageState extends State<BioPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("personal_info".tr()),
+        title: Text(
+          "personal_info".tr(),
+          style: TextStyle(fontFamily: KOFI_REGULAR, fontSize: 15),
+        ),
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -34,6 +37,7 @@ class _BioPageState extends State<BioPage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextFormField(
+                style: TextStyle(fontFamily: KOFI_REGULAR, fontSize: 14),
                 initialValue: widget.fullname,
                 onChanged: (text) {
                   setState(() {
@@ -48,6 +52,7 @@ class _BioPageState extends State<BioPage> {
               Container(
                 margin: EdgeInsets.only(top: 35),
                 child: TextFormField(
+                  style: TextStyle(fontFamily: KOFI_REGULAR, fontSize: 14),
                   initialValue: widget.bio,
                   onChanged: (text) {
                     setState(() {
