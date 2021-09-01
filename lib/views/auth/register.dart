@@ -109,6 +109,7 @@ class _registerState extends State<Register> {
                           margin: EdgeInsets.only(
                               left: 30, right: 30, top: 20, bottom: 20),
                           child: TextFormField(
+                            obscureText: true,
                             initialValue: password,
                             onChanged: (text) {
                               setState(() {
@@ -134,6 +135,7 @@ class _registerState extends State<Register> {
                         Container(
                           margin: EdgeInsets.only(left: 30, right: 30),
                           child: TextFormField(
+                            obscureText: true,
                             initialValue: confirmPassword,
                             onChanged: (text) {
                               setState(() {
@@ -191,48 +193,6 @@ class _registerState extends State<Register> {
                                       child: Text(value,
                                           style: TextStyle(
                                               fontSize: 16,
-                                              fontFamily: "DroidKufiRegular")));
-                                }).toList(),
-                              )),
-                        ),
-                        Align(
-                          alignment: Alignment.topRight,
-                          child: Container(
-                              margin: EdgeInsets.only(
-                                left: 30,
-                                top: 20,
-                                right: 30,
-                              ),
-                              child: DropdownButton<String>(
-                                value: genderValue,
-                                hint: Text(
-                                  "gender".tr(),
-                                  style: TextStyle(
-                                      fontFamily: "DroidKufiRegular",
-                                      fontSize: 16,
-                                      color: Theme.of(context).primaryColor),
-                                ),
-                                iconSize: 0,
-                                elevation: 16,
-                                style: TextStyle(color: Colors.deepPurple),
-                                underline: Container(
-                                  height: 1,
-                                  color: Colors.deepPurpleAccent,
-                                ),
-                                onChanged: (String newValue) {
-                                  setState(() {
-                                    genderValue = newValue;
-                                  });
-                                },
-                                items: <String>[
-                                  'male'.tr(),
-                                  'female'.tr(),
-                                  'other'.tr()
-                                ].map<DropdownMenuItem<String>>((String value) {
-                                  return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value,
-                                          style: TextStyle(
                                               fontFamily: "DroidKufiRegular")));
                                 }).toList(),
                               )),
@@ -312,13 +272,13 @@ class _registerState extends State<Register> {
     DialogUtil.showLoadingDialog(context);
 
     String gvalue = "";
-    if (genderValue == 'male'.tr()) {
-      gvalue = "male";
-    } else if (genderValue == 'female'.tr()) {
-      gvalue = "female";
-    } else {
-      gvalue = "other";
-    }
+    // if (genderValue == 'male'.tr()) {
+    //   gvalue = "male";
+    // } else if (genderValue == 'female'.tr()) {
+    //   gvalue = "female";
+    // } else {
+    //   gvalue = "other";
+    // }
 
     String wvalue;
     if (userTypeValue == 'worker'.tr()) {
@@ -332,7 +292,6 @@ class _registerState extends State<Register> {
       "password": password,
       "passwordConfirm": confirmPassword,
       "userType": wvalue,
-      "gender": gvalue,
       "birthday": formatter.format(selectedDate)
     };
     var response = await NetworkClient.getInstance().request(
@@ -340,7 +299,7 @@ class _registerState extends State<Register> {
     Navigator.pop(context);
     if (response.statusCode == 200) {
       Navigator.pop(context);
-      ToastUtil.showToast("Register Success");
+      ToastUtil.showToast("register_success".tr());
     } else {
       var data = jsonDecode(response.body);
       ToastUtil.showToast(data["error"]);
@@ -349,7 +308,7 @@ class _registerState extends State<Register> {
 
   bool validateData() {
     if (password.length < 8) {
-      ToastUtil.showToast("short password");
+      ToastUtil.showToast("short_password".tr());
       return false;
     }
     return fullName.isNotEmpty &&
@@ -358,7 +317,6 @@ class _registerState extends State<Register> {
         confirmPassword.isNotEmpty &&
         (password == confirmPassword) &&
         password.length >= 8 &&
-        genderValue != null &&
         userTypeValue != null &&
         selectedDate != null;
   }

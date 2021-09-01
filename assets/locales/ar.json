@@ -12,7 +12,7 @@
     "confirm_password": "تأكيد كلمة المرور",
     "user_type": "نوع المستخدم",
     "worker": "عامل",
-    "work_owner": "معلم",
+    "work_owner": "مُشغل",
     "gender": "الجنس",
     "male": "ذكر",
     "female": "انثى",
@@ -50,7 +50,7 @@
     "save": "حفظ",
     "work_spesf": "تخصصات العمل",
     "arabic": "العربية",
-    "hebrew": "עִברִית",
+    "hebrew": "عبري",
     "approve": "قبول",
     "reject": "رفض",
     "no_recommendation": "لا يوجد توصيات",
@@ -74,5 +74,12 @@
     "block_user": "حظر المستخدم",
     "applicants": "المتقدمون",
     "add_to_fav_sucess": "تم إضافة العامل الى المفضلة",
-    "enter_message": "ادخل الرسالة"
+    "enter_message": "ادخل الرسالة",
+    "short_password": "كلمة المرور قصيرة",
+    "register_success": "تم التسجيل بنجاح",
+    "added_successfully": "تمت الاضافة بنجاح",
+    "login_error": "اسم المستخدم او كلمة المرور غير صحيحة",
+    "profile": "الحساب",
+    "select_special": "اختيار التخصص",
+    "english": "إنجليزي"
 }

@@ -36,6 +36,7 @@ class _EmployerHomePageState extends State<EmployerHomePage> {
     Container(child: EmployerJobsPage()),
     Container(child: SearchWorkers()),
     Container(child: FavWorkersPage()),
+    Container(child: ProfilePage()),
   ];
 
   var bottomTabStyle = TextStyle(
@@ -58,24 +59,24 @@ class _EmployerHomePageState extends State<EmployerHomePage> {
                   fontFamily: Constants.KOFI_REGULAR,
                   fontSize: 16,
                   color: Colors.white)),
-          actions: [
-            TextButton.icon(
-              icon: Icon(Icons.account_box),
-              style: ButtonStyle(
-                foregroundColor:
-                    MaterialStateProperty.resolveWith((state) => Colors.white),
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ProfilePage()),
-                );
-              },
-              label: Text("account".tr(),
-                  style: TextStyle(
-                      fontFamily: Constants.KOFI_REGULAR, fontSize: 10)),
-            )
-          ],
+          // actions: [
+          //   TextButton.icon(
+          //     icon: Icon(Icons.account_box),
+          //     style: ButtonStyle(
+          //       foregroundColor:
+          //           MaterialStateProperty.resolveWith((state) => Colors.white),
+          //     ),
+          //     onPressed: () {
+          //       Navigator.push(
+          //         context,
+          //         MaterialPageRoute(builder: (context) => ProfilePage()),
+          //       );
+          //     },
+          //     label: Text("account".tr(),
+          //         style: TextStyle(
+          //             fontFamily: Constants.KOFI_REGULAR, fontSize: 10)),
+          //   )
+          // ],
         ),
         body: widgets[selectedIndex],
         bottomNavigationBar: BottomNavigationBar(
@@ -93,6 +94,10 @@ class _EmployerHomePageState extends State<EmployerHomePage> {
             BottomNavigationBarItem(
               icon: Icon(Icons.star_rate_rounded),
               label: "favourite".tr(),
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.account_box),
+              label: "profile".tr(),
             ),
           ],
           currentIndex: selectedIndex,

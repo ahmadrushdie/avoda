@@ -35,6 +35,12 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
     super.initState();
   }
 
+  var widgets = [
+    Center(child: ChatListView()),
+    Center(child: PostedJobs()),
+    Center(child: ProfilePage()),
+  ];
+
   // IndexedStack _widgetOptions = IndexedStack(index: selectedIndex, children: [
   //   Text(
   //     'Messages',
@@ -62,12 +68,7 @@ class _WorkerHomePageState extends State<WorkerHomePage> {
       //           color: Colors.white)),
       // ),
 
-      body: Center(
-          child: IndexedStack(index: selectedIndex, children: [
-        Center(child: ChatListView()),
-        Center(child: PostedJobs()),
-        Center(child: ProfilePage()),
-      ])),
+      body: Center(child: widgets[selectedIndex]),
 
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[

@@ -36,7 +36,7 @@ class _EmployerJobsPageState extends State<EmployerJobsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: renderUI(),
+      body: Container(child: renderUI()),
       floatingActionButton: Container(
         margin: EdgeInsets.only(right: 30),
         child: Align(
@@ -97,156 +97,164 @@ class _EmployerJobsPageState extends State<EmployerJobsPage> {
                 onRefresh: () {
                   return getMyJobs();
                 },
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: jobs.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    var item = jobs[index];
-                    return Container(
-                      child: GestureDetector(
-                        onTap: () {
-                          openDetailsScreen(item);
-                        },
-                        child: Card(
-                            margin: EdgeInsets.only(left: 8, right: 8, top: 8),
-                            child: Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      CustomNetworkImage(
-                                          width: 50,
-                                          hieght: 50,
-                                          isCircular: true,
-                                          imageUrl: item.owner.userPic),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(item.owner.fullName),
-                                      )
-                                    ],
-                                  ),
-                                  Container(
-                                    margin:
-                                        EdgeInsets.only(top: 10, bottom: 10),
-                                    height: 1,
-                                    decoration: BoxDecoration(
-                                        color: HexColor.fromHex("#cccccc")),
-                                  ),
-                                  Container(
-                                    child: Table(
-                                        columnWidths: <int, TableColumnWidth>{
-                                          0: IntrinsicColumnWidth(),
-                                          1: FlexColumnWidth(),
-                                          2: FixedColumnWidth(64),
-                                        },
-                                        defaultVerticalAlignment:
-                                            TableCellVerticalAlignment.middle,
-                                        children: <TableRow>[
-                                          TableRow(
-                                            children: <Widget>[
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 8.0),
-                                                child: Container(
-                                                  child: Text(
-                                                    "location".tr(),
-                                                    style: headerText,
+                child: Container(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: jobs.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      var item = jobs[index];
+                      return Container(
+                        child: GestureDetector(
+                          onTap: () {
+                            openDetailsScreen(item);
+                          },
+                          child: Card(
+                              margin:
+                                  EdgeInsets.only(left: 8, right: 8, top: 8),
+                              child: Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        CustomNetworkImage(
+                                            width: 50,
+                                            hieght: 50,
+                                            isCircular: true,
+                                            imageUrl: item.owner.userPic),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(item.owner.fullName),
+                                        )
+                                      ],
+                                    ),
+                                    Container(
+                                      margin:
+                                          EdgeInsets.only(top: 10, bottom: 10),
+                                      height: 1,
+                                      decoration: BoxDecoration(
+                                          color: HexColor.fromHex("#cccccc")),
+                                    ),
+                                    Container(
+                                      child: Table(
+                                          columnWidths: <int, TableColumnWidth>{
+                                            0: IntrinsicColumnWidth(),
+                                            1: FlexColumnWidth(),
+                                            2: FixedColumnWidth(64),
+                                          },
+                                          defaultVerticalAlignment:
+                                              TableCellVerticalAlignment.middle,
+                                          children: <TableRow>[
+                                            TableRow(
+                                              children: <Widget>[
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 8.0),
+                                                  child: Container(
+                                                    child: Text(
+                                                      "location".tr(),
+                                                      style: headerText,
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                              Container(
-                                                child: Text(
-                                                  item.city,
-                                                  style: contentStyle,
+                                                Container(
+                                                  child: Text(
+                                                    item.city,
+                                                    style: contentStyle,
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
-                                          ),
+                                              ],
+                                            ),
 
-                                          TableRow(
-                                            children: <Widget>[
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 8.0),
-                                                child: Container(
-                                                  child: Text(
-                                                    "specialization".tr(),
-                                                    style: headerText,
+                                            TableRow(
+                                              children: <Widget>[
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 8.0),
+                                                  child: Container(
+                                                    child: Text(
+                                                      "specialization".tr(),
+                                                      style: headerText,
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                              Container(
-                                                child: Text(
-                                                  item.field.getSpecial(context
-                                                      .locale.languageCode),
-                                                  style: contentStyle,
+                                                Container(
+                                                  child: Text(
+                                                    item.field.getSpecial(
+                                                        context.locale
+                                                            .languageCode),
+                                                    style: contentStyle,
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
-                                          ),
+                                              ],
+                                            ),
 
-                                          TableRow(
-                                            children: <Widget>[
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 8.0),
-                                                child: Container(
-                                                  child: Text(
-                                                    "date".tr(),
-                                                    style: headerText,
+                                            TableRow(
+                                              children: <Widget>[
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 8.0),
+                                                  child: Container(
+                                                    child: Text(
+                                                      "date".tr(),
+                                                      style: headerText,
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                              Container(
-                                                child: Text(
-                                                  item.createdAt,
-                                                  style: contentStyle,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          TableRow(
-                                            children: <Widget>[
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 8.0),
-                                                child: Container(
+                                                Container(
                                                   child: Text(
-                                                    "desc".tr(),
-                                                    style: headerText,
+                                                    item.getFormattedDate(),
+                                                    style: contentStyle,
                                                   ),
                                                 ),
-                                              ),
-                                              Container(
-                                                child: Text(
-                                                  item.description,
-                                                  softWrap: false,
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: contentStyle,
+                                              ],
+                                            ),
+                                            TableRow(
+                                              children: <Widget>[
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 8.0),
+                                                  child: Container(
+                                                    child: Text(
+                                                      "desc".tr(),
+                                                      style: headerText,
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
-                                          ),
+                                                Container(
+                                                  child: Text(
+                                                    item.description,
+                                                    softWrap: false,
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: contentStyle,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
 
-                                          // children: [
-                                        ]
-                                        //   // Text(""+job.description),
-                                        //   // Text(job.city),
-                                        //   // Text(job.field),
-                                        //   // Text(job.createdAt),
-                                        // ],
-                                        ),
-                                  ),
-                                  renderButtons(item)
-                                ],
-                              ),
-                            )),
-                      ),
-                    );
-                  },
+                                            // children: [
+                                          ]
+                                          //   // Text(""+job.description),
+                                          //   // Text(job.city),
+                                          //   // Text(job.field),
+                                          //   // Text(job.createdAt),
+                                          // ],
+                                          ),
+                                    ),
+                                    renderButtons(item)
+                                  ],
+                                ),
+                              )),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               )
         : Center(child: CircularProgressIndicator());

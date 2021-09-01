@@ -43,7 +43,7 @@ class MyChat {
 }
 
 class With {
-  Null userPic;
+  String userPic;
   String sId;
   String fullName;
   String username;

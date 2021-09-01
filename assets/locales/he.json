@@ -73,5 +73,12 @@
     "block_user": "איסור משתמשים",
     "applicants": "מקדימים",
     "add_to_fav_sucess": "העובד נוסף למועדפים",
-    "enter_message": "הזן את ההודעה"
+    "enter_message": "הזן את ההודעה",
+    "short_password": "סיסמא קצרה",
+    "register_success": "נרשם בהצלחת",
+    "added_successfully": "נוספה בהצלחה",
+    "login_error": "שם המשתמש או הסיסמה אינם נכונים",
+    "profile": "החשבו",
+    "select_special": "בחר התמחות",
+    "english": "אנגלית"
 }

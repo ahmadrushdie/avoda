@@ -1,3 +1,5 @@
+import 'package:easy_localization/easy_localization.dart';
+
 class Jobs {
   String status;
   int results;
@@ -41,6 +43,12 @@ class Job {
   String sId;
   Field field;
   Owner owner;
+  String formatedDate;
+
+  String getFormattedDate() {
+    DateTime todayDate = DateTime.parse(createdAt);
+    return new DateFormat("yyyy-MM-dd hh:mm a").format(todayDate);
+  }
 
   Job(
       {this.createdAt,

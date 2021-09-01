@@ -71,45 +71,47 @@ class _SearchWorkersState extends State<SearchWorkers> {
         TextStyle(fontFamily: KOFI_BOLD, fontSize: 13, color: Colors.blue);
     return workers == null
         ? showLoader()
-        : Column(children: [
-            Row(
-              children: [
-                Row(
-                  children: [
-                    IconButton(
-                        icon: Icon(
+        : Container(
+            child: Column(children: [
+              Row(
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                          icon: Icon(
+                              workFieldName != null
+                                  ? Icons.close
+                                  : Icons.filter_alt,
+                              color: Colors.blue),
+                          onPressed: () {
+                            if (workFieldName != null) {
+                              setState(() {
+                                workFieldId = null;
+                                workFieldName = null;
+                                removeSelection(workFields);
+                                _pagingController.refresh();
+                              });
+                            } else {
+                              showWokingFieldFilter(workFields);
+                            }
+                          }),
+                      GestureDetector(
+                        onTap: () {
+                          showWokingFieldFilter(workFields);
+                        },
+                        child: Text(
                             workFieldName != null
-                                ? Icons.close
-                                : Icons.filter_alt,
-                            color: Colors.blue),
-                        onPressed: () {
-                          if (workFieldName != null) {
-                            setState(() {
-                              workFieldId = null;
-                              workFieldName = null;
-                              removeSelection(workFields);
-                              _pagingController.refresh();
-                            });
-                          } else {
-                            showWokingFieldFilter(workFields);
-                          }
-                        }),
-                    GestureDetector(
-                      onTap: () {
-                        showWokingFieldFilter(workFields);
-                      },
-                      child: Text(
-                          workFieldName != null
-                              ? workFieldName
-                              : "filter_by".tr(),
-                          style: filtersTextStyle),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            Expanded(child: showList())
-          ]);
+                                ? workFieldName
+                                : "filter_by".tr(),
+                            style: filtersTextStyle),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Expanded(child: showList())
+            ]),
+          );
   }
 
   getWorkers(int pageNumber) async {
@@ -281,7 +283,7 @@ class _SearchWorkersState extends State<SearchWorkers> {
   }
 
   showLoader() {
-    return CircularProgressIndicator();
+    return Center(child: CircularProgressIndicator());
   }
 
   void removeSelection(List<WorkField> list) {

@@ -9,6 +9,7 @@ import 'package:flutter_app/utils/tool_bar_helper.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter_app/views/common/loading_dialog.dart';
 import 'package:flutter_app/views/common/toast.dart';
+import 'package:flutter_app/views/employer/select_specializztion_view.dart';
 
 class AddJobPage extends StatefulWidget {
   AddJobPage({Key key}) : super(key: key);
@@ -66,7 +67,7 @@ class _AddJobPageState extends State<AddJobPage> {
                           ),
                         ),
                         onTap: () {
-                          showWokingFieldFilter(workFields);
+                          openSelectSpecial();
                         },
                       )),
                 Container(
@@ -136,6 +137,22 @@ class _AddJobPageState extends State<AddJobPage> {
     );
   }
 
+  openSelectSpecial() async {
+    var response = await Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => SelectSpecialization(workFieldId: workFieldId)),
+    );
+
+    var workfield = WorkField.fromJson(jsonDecode(response));
+    if (workfield != null) {
+      setState(() {
+        workFieldId = workfield.sId;
+        workFieldName = workfield.getFieldName(context.locale.languageCode);
+      });
+    }
+  }
+
   validateData() {
     if (workFieldId != null && workLocation != null && workDesc != null) {
       return true;
@@ -183,11 +200,12 @@ class _AddJobPageState extends State<AddJobPage> {
               contentPadding: EdgeInsets.zero,
               title: Text('specialization'.tr(),
                   style: TextStyle(fontFamily: KOFI_REGULAR)),
-              content: StatefulBuilder(
+              content: SingleChildScrollView(child: StatefulBuilder(
                   builder: (BuildContext context, StateSetter setState) {
                 return Container(
                   // Change as per your requirement
                   width: 300.0, // Change as per your requirement
+                  height: 300.0,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -198,26 +216,24 @@ class _AddJobPageState extends State<AddJobPage> {
                           return Padding(
                             padding: const EdgeInsets.only(
                                 right: 23.0, top: 8, bottom: 8),
-                            child: Column(
-                              children: [
-                                Row(children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      makeSelection(list, index);
-                                      Navigator.pop(context);
-                                    },
-                                    child: Text(
-                                        list[index].getFieldName(
-                                            context.locale.languageCode),
-                                        style: TextStyle(
-                                            fontFamily: KOFI_REGULAR,
-                                            color: list[index].isChecked
-                                                ? Theme.of(context).primaryColor
-                                                : Colors.black,
-                                            fontSize: 15)),
-                                  )
-                                ]),
-                              ],
+                            child: Container(
+                              child: Row(children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    makeSelection(list, index);
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text(
+                                      list[index].getFieldName(
+                                          context.locale.languageCode),
+                                      style: TextStyle(
+                                          fontFamily: KOFI_REGULAR,
+                                          color: list[index].isChecked
+                                              ? Theme.of(context).primaryColor
+                                              : Colors.black,
+                                          fontSize: 15)),
+                                )
+                              ]),
                             ),
                           );
                         },
@@ -246,7 +262,7 @@ class _AddJobPageState extends State<AddJobPage> {
                     ],
                   ),
                 );
-              }));
+              })));
         });
   }
 

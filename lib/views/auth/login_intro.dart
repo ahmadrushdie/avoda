@@ -145,39 +145,9 @@ class _loginState extends State<LoginIntro> {
                       Row(
                         children: [
                           Expanded(
-                            child: Container(
-                              margin: EdgeInsets.only(
-                                  left: 30, right: 10, top: 40, bottom: 15),
-                              decoration: BoxDecoration(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10)),
-                              ),
-                              height: 40,
-                              child: ElevatedButton.icon(
-                                label: Text(
-                                  "google".tr(),
-                                  style: TextStyle(fontFamily: "DroidKufiBold"),
-                                ),
-                                icon: Icon(AppIcons.gplus),
-                                style: ButtonStyle(
-                                    backgroundColor:
-                                        MaterialStateProperty.all<Color>(
-                                            HexColor.fromHex("#d32f2f")),
-                                    shape: MaterialStateProperty.all<
-                                            RoundedRectangleBorder>(
-                                        RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(18.0),
-                                    ))),
-                                onPressed: () {
-                                  print('Pressed');
-                                },
-                              ),
-                            ),
-                          ),
-                          Expanded(
                               child: Container(
                             margin: EdgeInsets.only(
-                                left: 10, right: 30, top: 40, bottom: 15),
+                                left: 30, right: 30, top: 40, bottom: 15),
                             decoration: BoxDecoration(
                               borderRadius:
                                   BorderRadius.all(Radius.circular(10)),

@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/constants/apis_constants.dart';
 import 'package:flutter_app/models/chat_list.dart';
 import 'package:flutter_app/network/network_client.dart';
+import 'package:flutter_app/views/common/no_records_view.dart';
 import 'package:flutter_app/views/common/rounded_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 import 'add_chat_view.dart';
 
@@ -27,45 +29,48 @@ class _ChatListViewState extends State<ChatListView> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Center(
       child: chats == null
           ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: chats.length,
-              itemBuilder: (BuildContext context, int index) {
-                var chat = chats[index];
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => AddChatPage(
-                              reciverId: chat.chatWith.sId, chatId: chat.sId)),
-                    );
-                  },
-                  child: Card(
-                      child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Column(
-                      children: [
-                        Row(
+          : chats.length == 0
+              ? NoDataView(text: "no_record_found".tr())
+              : ListView.builder(
+                  itemCount: chats.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    var chat = chats[index];
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => AddChatPage(
+                                  reciverId: chat.chatWith.sId,
+                                  chatId: chat.sId)),
+                        );
+                      },
+                      child: Card(
+                          child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Column(
                           children: [
-                            CustomNetworkImage(
-                                width: 50,
-                                hieght: 50,
-                                isCircular: true,
-                                imageUrl: chat.chatWith.userPic),
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(chat.chatWith.fullName),
-                            )
+                            Row(
+                              children: [
+                                CustomNetworkImage(
+                                    width: 50,
+                                    hieght: 50,
+                                    isCircular: true,
+                                    imageUrl: chat.chatWith.userPic),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(chat.chatWith.fullName),
+                                )
+                              ],
+                            ),
                           ],
                         ),
-                      ],
-                    ),
-                  )),
-                );
-              }),
+                      )),
+                    );
+                  }),
     );
   }
 

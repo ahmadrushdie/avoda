@@ -22,7 +22,7 @@ class FavoriteList {
 }
 
 class Favorite {
-  Null userPic;
+  String userPic;
   String sId;
   String fullName;
 

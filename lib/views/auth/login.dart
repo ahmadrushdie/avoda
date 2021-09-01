@@ -5,6 +5,7 @@ import 'package:flutter_app/extentions/extentions.dart';
 import 'package:flutter_app/models/user.dart';
 import 'package:flutter_app/views/auth/register.dart';
 import 'package:flutter_app/constants/fonts.dart';
+import 'package:flutter_app/views/common/toast.dart';
 import 'package:flutter_app/views/employer/employer_home_page.dart';
 import 'package:flutter_app/views/worker/home_page.dart';
 import 'package:http/http.dart' as http;
@@ -194,9 +195,10 @@ class _loginState extends State<Login> {
           MaterialPageRoute(
               builder: (context) => getUserHomeScreen(user.userType)),
           (Route<dynamic> route) => false);
-    } else if (response.statusCode == 401) {
+    } else {
       var data = jsonDecode(response.body);
-      print(data["userid"]);
+      ToastUtil.showToast("login_error".tr());
+      FocusScope.of(context).requestFocus(FocusNode());
     }
   }
 

@@ -290,10 +290,10 @@ class _ProfilePageState extends State<ProfilePage>
     });
 
     return Scaffold(
-        appBar: AppBar(
-          title: Text("account".tr(),
-              style: TextStyle(fontFamily: KOFI_REGULAR, fontSize: 15)),
-        ),
+        // appBar: AppBar(
+        //   title: Text("account".tr(),
+        //       style: TextStyle(fontFamily: KOFI_REGULAR, fontSize: 15)),
+        // ),
         body: profile == null ? showLoading() : renderProfile(profile));
   }
 
@@ -422,7 +422,7 @@ class _ProfilePageState extends State<ProfilePage>
     return Column(
       children: [
         Container(
-          padding: EdgeInsets.only(top: 30, right: 20),
+          padding: EdgeInsets.only(top: 50, right: 20),
           decoration: BoxDecoration(
               gradient: LinearGradient(begin: Alignment.topLeft, stops: [
             0.1,
@@ -542,6 +542,7 @@ class _ProfilePageState extends State<ProfilePage>
                         margin: EdgeInsets.only(top: 3),
                         child: widget.workerId == null
                             ? IconButton(
+                                iconSize: 34.0,
                                 icon: Icon(
                                     widget.workerId == null
                                         ? Icons.settings
@@ -585,14 +586,15 @@ class _ProfilePageState extends State<ProfilePage>
               renderRecommendation(profile),
               renderPhotoGrid(),
             ]),
-            floatingActionButton: _tabController.index == 1
-                ? FloatingActionButton(
-                    child: Icon(Icons.add),
-                    onPressed: () {
-                      navigateToAddRecommendation();
-                    },
-                  )
-                : null,
+            floatingActionButton:
+                _tabController.index == 1 && widget.workerId != null
+                    ? FloatingActionButton(
+                        child: Icon(Icons.add),
+                        onPressed: () {
+                          navigateToAddRecommendation();
+                        },
+                      )
+                    : null,
           ),
         )),
       ],

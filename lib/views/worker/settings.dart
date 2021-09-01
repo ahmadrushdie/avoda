@@ -82,7 +82,7 @@ class _SettingPageState extends State<SettingPage> {
                         // uniquely identify widgets.
                         key: Key(index.toString()),
                         index: index, // required
-                        title: item == "Arabic" ? "عربي" : "عبري",
+                        title: showTitle(item),
                         active: false,
                         pressEnabled: false,
                         removeButton: ItemTagsRemoveButton(
@@ -124,6 +124,16 @@ class _SettingPageState extends State<SettingPage> {
             ])));
   }
 
+  showTitle(String item) {
+    if (item == "Arabic") {
+      return "arabic".tr();
+    } else if (item == "Hebrew") {
+      return "hebrew".tr();
+    } else {
+      return "english".tr();
+    }
+  }
+
   addLanguage(String language) async {
     showLoaderDialog(context);
 
@@ -140,7 +150,7 @@ class _SettingPageState extends State<SettingPage> {
 
       widget.callback(widget.profile);
 
-      ToastUtil.showToast("added successfully");
+      ToastUtil.showToast("added_successfully".tr());
     } else {
       ToastUtil.showToast("error in add");
     }
@@ -150,7 +160,9 @@ class _SettingPageState extends State<SettingPage> {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-          bool isArabicExist = false, isHebrowExist = false;
+          bool isArabicExist = false,
+              isHebrowExist = false,
+              isEnglishExist = false;
           selectedLanguages.forEach((element) {
             if (element == "Arabic") {
               isArabicExist = true;
@@ -159,6 +171,10 @@ class _SettingPageState extends State<SettingPage> {
             if (element == "Hebrew") {
               isHebrowExist = true;
             }
+
+            if (element == "English") {
+              isEnglishExist = true;
+            }
           });
           var options = [
             {
@@ -166,7 +182,12 @@ class _SettingPageState extends State<SettingPage> {
               "isCheck": isArabicExist,
               "value": "Arabic"
             },
-            {"lang": "hebrew".tr(), "isCheck": isHebrowExist, "value": "Hebrew"}
+            {
+              "lang": "hebrew".tr(),
+              "isCheck": isHebrowExist,
+              "value": "Hebrew"
+            },
+            {"lang": "English", "isCheck": isEnglishExist, "value": "English"}
           ];
 
           return AlertDialog(
@@ -260,6 +281,7 @@ class _SettingPageState extends State<SettingPage> {
                         // Each ItemTags must contain a Key. Keys allow Flutter to
                         // uniquely identify widgets.
                         key: Key(index.toString()),
+
                         index: index, // required
                         title: item.getFieldName(context.locale.languageCode),
                         active: false,
